@@ -6,19 +6,21 @@ import {
   Param,
   Post,
   Put,
+   Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './schemas/product.schema';
+import type { Query as ExpressQuery } from 'express-serve-static-core';
 
 @Controller('products')
 export class BookController {
   constructor(private productService: ProductService) {} 
 
   @Get()
-  async getAllBooks(): Promise<Product[]> {
-    return this.productService.findAll();
+  async getAllBooks(@Query() query: ExpressQuery): Promise<Product[]> {
+    return this.productService.findAll(query);
   }
 
   @Post()
