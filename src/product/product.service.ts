@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Product } from './schemas/product.schema';
@@ -37,6 +41,12 @@ export class ProductService {
   }
 
   async findById(id: string): Promise<Product> {
+
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException('Please enter correct id.');
+    }
     const product = await this.productModel.findById(id);
 
     if (!product) {
