@@ -31,8 +31,9 @@ export class BookController {
   async createBook(
     @Body()
     Product: CreateProductDto,
+      @Req() req,
   ): Promise<Product> {
-    return this.productService.create(Product);
+    return this.productService.create(  Product, req.user);
   }
 
   @Get(':id')

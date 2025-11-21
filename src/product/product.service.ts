@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
 import { Product } from './schemas/product.schema';
 import { Query } from 'express-serve-static-core';
+import { User } from '../auth/schemas/user.schema';
 
 @Injectable()
 export class ProductService {
@@ -35,8 +36,8 @@ export class ProductService {
     return products;
   }
 
-  async create(product): Promise<Product> {
-    const res = await this.productModel.create(product);
+  async create(product , user: User): Promise<Product> {
+    const res = await this.productModel.create({ ...product ,   user : user._id } );
     return res;
   }
 
