@@ -1,18 +1,21 @@
 import {
-  Body,
+   Body,
   Controller,
   Delete,
   Get,
   Param,
   Post,
   Put,
-   Query,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './schemas/product.schema';
 import type { Query as ExpressQuery } from 'express-serve-static-core';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('products')
 export class BookController {
@@ -24,6 +27,7 @@ export class BookController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   async createBook(
     @Body()
     Product: CreateProductDto,
