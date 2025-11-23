@@ -30,6 +30,7 @@ describe('ProductService', () => {
     find: jest.fn(),
     create: jest.fn(),
     findById: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -162,6 +163,54 @@ describe('ProductService', () => {
         user: mockUser._id,
       });
       expect(result).toEqual(newProduct);
+    });
+  });
+
+  describe('updateById', () => {
+    it('should update and return a product', async () => {
+      const updateProductDto = {
+        name: 'Updated Product',
+        price: 199.99,
+        stock: 25,
+      };
+
+      const updatedProduct = {
+        ...mockProduct,
+        ...updateProductDto,
+      };
+
+      jest.spyOn(model, 'findByIdAndUpdate').mockResolvedValue(updatedProduct);
+
+      const result = await productService.updateById(mockProduct._id, updateProductDto);
+
+      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockProduct._id,
+        updateProductDto,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
+      expect(result).toEqual(updatedProduct);
+    });
+
+    it('should throw NotFoundException if product to update is not found', async () => {
+      const updateProductDto = { name: 'Updated Product' };
+
+      jest.spyOn(model, 'findByIdAndUpdate').mockResolvedValue(null);
+
+      await expect(
+        productService.updateById(mockProduct._id, updateProductDto),
+      ).rejects.toThrow(NotFoundException);
+
+      expect(model.findByIdAndUpdate).toHaveBeenCalledWith(
+        mockProduct._id,
+        updateProductDto,
+        {
+          new: true,
+          runValidators: true,
+        },
+      );
     });
   });
 });
