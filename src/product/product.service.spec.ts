@@ -137,5 +137,31 @@ describe('ProductService', () => {
     });
   });
 
-  
+  describe('create', () => {
+    it('should create and return a product with user association', async () => {
+      const createProductDto = {
+        name: 'New Product',
+        description: 'New Description',
+        price: 149.99,
+        category: 'clothing',
+        stock: 100,
+      };
+
+      const newProduct = {
+        ...createProductDto,
+        _id: 'new-id',
+        user: mockUser._id,
+      };
+
+      jest.spyOn(model, 'create').mockResolvedValue(newProduct as any);
+
+      const result = await productService.create(createProductDto, mockUser);
+
+      expect(model.create).toHaveBeenCalledWith({
+        ...createProductDto,
+        user: mockUser._id,
+      });
+      expect(result).toEqual(newProduct);
+    });
+  });
 });
