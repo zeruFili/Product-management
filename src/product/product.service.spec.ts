@@ -4,6 +4,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { Product } from './schemas/product.schema';
 import mongoose, { Model } from 'mongoose';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { User } from '../auth/schemas/user.schema';
 
 describe('ProductService', () => {
   let productService: ProductService;
@@ -16,9 +17,18 @@ describe('ProductService', () => {
     price: 99.99,
     category: 'electronics',
     stock: 50,
+    user: '61c0ccf11d7bf83d153d7c06',
+  };
+
+  const mockUser = {
+    _id: '61c0ccf11d7bf83d153d7c06',
+    name: 'Test User',
+    email: 'test@example.com',
   };
 
   const mockProductService = {
+    find: jest.fn(),
+    create: jest.fn(),
     findById: jest.fn(),
   };
 
@@ -39,25 +49,20 @@ describe('ProductService', () => {
 
   describe('findById', () => {
     it('should find and return a product by ID', async () => {
-      // Arrange
       jest.spyOn(model, 'findById').mockResolvedValue(mockProduct);
 
-      // Act
       const result = await productService.findById(mockProduct._id);
 
-      // Assert
       expect(model.findById).toHaveBeenCalledWith(mockProduct._id);
       expect(result).toEqual(mockProduct);
     });
 
     it('should throw BadRequestException if invalid ID is provided', async () => {
-      // Arrange
       const id = 'invalid-id';
       const isValidObjectIDMock = jest
         .spyOn(mongoose, 'isValidObjectId')
         .mockReturnValue(false);
 
-      // Act & Assert
       await expect(productService.findById(id)).rejects.toThrow(
         BadRequestException,
       );
@@ -67,10 +72,8 @@ describe('ProductService', () => {
     });
 
     it('should throw NotFoundException if product is not found', async () => {
-      // Arrange
       jest.spyOn(model, 'findById').mockResolvedValue(null);
 
-      // Act & Assert
       await expect(productService.findById(mockProduct._id)).rejects.toThrow(
         NotFoundException,
       );
@@ -78,4 +81,61 @@ describe('ProductService', () => {
       expect(model.findById).toHaveBeenCalledWith(mockProduct._id);
     });
   });
+
+  describe('findAll', () => {
+    it('should return an array of products with pagination', async () => {
+      const mockProducts = [mockProduct, { ...mockProduct, _id: '2' }];
+      const query = { page: '1' };
+
+      jest.spyOn(model, 'find').mockReturnValue({
+        limit: jest.fn().mockReturnValue({
+          skip: jest.fn().mockResolvedValue(mockProducts),
+        }),
+      } as any);
+
+      const result = await productService.findAll(query);
+
+      expect(model.find).toHaveBeenCalledWith({});
+      expect(result).toEqual(mockProducts);
+    });
+
+    it('should apply keyword search when provided', async () => {
+      const mockProducts = [mockProduct];
+      const query = { page: '1', keyword: 'test' };
+
+      jest.spyOn(model, 'find').mockReturnValue({
+        limit: jest.fn().mockReturnValue({
+          skip: jest.fn().mockResolvedValue(mockProducts),
+        }),
+      } as any);
+
+      const result = await productService.findAll(query);
+
+      expect(model.find).toHaveBeenCalledWith({
+        name: {
+          $regex: 'test',
+          $options: 'i',
+        },
+      });
+      expect(result).toEqual(mockProducts);
+    });
+
+    it('should use default page 1 when no page provided', async () => {
+      const mockProducts = [mockProduct];
+      const query = {};
+
+      jest.spyOn(model, 'find').mockReturnValue({
+        limit: jest.fn().mockReturnValue({
+          skip: jest.fn().mockResolvedValue(mockProducts),
+        }),
+      } as any);
+
+      const result = await productService.findAll(query);
+
+      expect(model.find).toHaveBeenCalledWith({});
+      expect(result).toEqual(mockProducts);
+    });
+  });
+
+  
 });
