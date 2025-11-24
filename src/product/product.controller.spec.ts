@@ -27,6 +27,7 @@ describe('ProductController', () => {
   };
 
   const mockProductService = {
+    findAll: jest.fn().mockResolvedValueOnce([mockProduct]),
     findById: jest.fn().mockResolvedValueOnce(mockProduct),
   };
 
@@ -48,6 +49,21 @@ describe('ProductController', () => {
 
   it('should be defined', () => {
     expect(productController).toBeDefined();
+  });
+
+  describe('getAllProducts', () => {
+    it('should get all products', async () => {
+      const result = await productController.getAllProducts({
+        page: '1',
+        keyword: 'test',
+      });
+
+      expect(productService.findAll).toHaveBeenCalledWith({
+        page: '1',
+        keyword: 'test',
+      });
+      expect(result).toEqual([mockProduct]);
+    });
   });
 
   describe('getProductById', () => {
