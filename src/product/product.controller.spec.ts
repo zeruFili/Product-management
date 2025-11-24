@@ -28,6 +28,7 @@ describe('ProductController', () => {
 
   const mockProductService = {
     findAll: jest.fn().mockResolvedValueOnce([mockProduct]),
+    create: jest.fn(),
     findById: jest.fn().mockResolvedValueOnce(mockProduct),
   };
 
@@ -63,6 +64,28 @@ describe('ProductController', () => {
         keyword: 'test',
       });
       expect(result).toEqual([mockProduct]);
+    });
+  });
+
+  describe('createProduct', () => {
+    it('should create a new product', async () => {
+      const newProduct = {
+        name: 'New Product',
+        description: 'Product Description',
+        price: 149.99,
+        category: 'clothing',
+        stock: 100,
+      };
+
+      mockProductService.create = jest.fn().mockResolvedValueOnce(mockProduct);
+
+      const result = await productController.createProduct(
+        newProduct as CreateProductDto,
+        { user: mockUser } as any,
+      );
+
+      expect(productService.create).toHaveBeenCalledWith(newProduct, mockUser);
+      expect(result).toEqual(mockProduct);
     });
   });
 
