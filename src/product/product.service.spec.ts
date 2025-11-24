@@ -213,4 +213,25 @@ describe('ProductService', () => {
       );
     });
   });
+
+  describe('deleteById', () => {
+  it('should delete and return a product', async () => {
+    jest.spyOn(model, 'findByIdAndDelete').mockResolvedValue(mockProduct);
+
+    const result = await productService.deleteById(mockProduct._id);
+
+    expect(model.findByIdAndDelete).toHaveBeenCalledWith(mockProduct._id);
+    expect(result).toEqual(mockProduct);
+  });
+
+  it('should throw NotFoundException if product to delete is not found', async () => {
+    jest.spyOn(model, 'findByIdAndDelete').mockResolvedValue(null);
+
+    await expect(productService.deleteById(mockProduct._id)).rejects.toThrow(
+      NotFoundException,
+    );
+
+    expect(model.findByIdAndDelete).toHaveBeenCalledWith(mockProduct._id);
+  });
+});
 });
