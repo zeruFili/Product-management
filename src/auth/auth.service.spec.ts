@@ -78,5 +78,38 @@ describe('AuthService', () => {
     });
   });
 
-  
+  describe('logIn', () => {
+    const loginDto = {
+      email: 'ghulam1@gmail.com',
+      password: '12345678',
+    };
+
+    it('should login user and return the token', async () => {
+      jest.spyOn(model, 'findOne').mockResolvedValueOnce(mockUser);
+
+      jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(true);
+      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+
+      const result = await authService.login(loginDto);
+
+      expect(result).toEqual({ token });
+    });
+
+    it('should throw invalid email error', async () => {
+      jest.spyOn(model, 'findOne').mockResolvedValueOnce(null);
+
+      expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw invalid password error', async () => {
+      jest.spyOn(model, 'findOne').mockResolvedValueOnce(mockUser);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(false);
+
+      expect(authService.login(loginDto)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+  });
 });
