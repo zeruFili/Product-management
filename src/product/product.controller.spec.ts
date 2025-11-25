@@ -30,6 +30,8 @@ describe('ProductController', () => {
     findAll: jest.fn().mockResolvedValueOnce([mockProduct]),
     create: jest.fn(),
     findById: jest.fn().mockResolvedValueOnce(mockProduct),
+    updateById: jest.fn(),
+    deleteById: jest.fn().mockResolvedValueOnce(mockProduct),
   };
 
   beforeEach(async () => {
@@ -97,4 +99,26 @@ describe('ProductController', () => {
       expect(result).toEqual(mockProduct);
     });
   });
+
+  describe('updateProduct', () => {
+    it('should update product by its ID', async () => {
+      const updatedProduct = { ...mockProduct, name: 'Updated Product' };
+      const product = { name: 'Updated Product' };
+
+      mockProductService.updateById = jest.fn().mockResolvedValueOnce(updatedProduct);
+
+      const result = await productController.updateProduct(
+        mockProduct._id,
+        product as UpdateProductDto,
+      );
+
+      expect(productService.updateById).toHaveBeenCalledWith(
+        mockProduct._id,
+        product,
+      );
+      expect(result).toEqual(updatedProduct);
+    });
+  });
+
+
 });
