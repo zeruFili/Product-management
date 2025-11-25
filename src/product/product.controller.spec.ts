@@ -120,5 +120,12 @@ describe('ProductController', () => {
     });
   });
 
+  describe('deleteProduct', () => {
+    it('should delete a product by ID', async () => {
+      const result = await productController.deleteProduct(mockProduct._id);
 
+      expect(productService.deleteById).toHaveBeenCalledWith(mockProduct._id);
+      expect(result).toEqual(mockProduct);
+    });
+  });
 });
