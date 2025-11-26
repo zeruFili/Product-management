@@ -89,38 +89,53 @@ describe('AuthService', () => {
     });
   });
 
-  describe('logIn', () => {
+  describe('login', () => {
     const loginDto = {
       email: 'ghulam1@gmail.com',
       password: '12345678',
     };
 
     it('should login user and return the token', async () => {
-      jest.spyOn(model, 'findOne').mockResolvedValueOnce(mockUser);
-
-      jest.spyOn(bcrypt as any, 'compare').mockResolvedValueOnce(true);
+      // Setup mocks
+      mockModel.findOne.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
 
       const result = await authService.login(loginDto);
 
+      // Verify user lookup
+      expect(mockModel.findOne).toHaveBeenCalledWith({ email: loginDto.email });
+
+      // Verify password comparison
+      expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, mockUser.password);
+
+      // Verify JWT token generation
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: mockUser._id });
+
+      // Verify final result
       expect(result).toEqual({ token });
     });
 
-    it('should throw invalid email error', async () => {
-      jest.spyOn(model, 'findOne').mockResolvedValueOnce(null);
+    it('should throw UnauthorizedException if user not found', async () => {
+      // Mock user not found
+      mockModel.findOne.mockResolvedValue(null);
 
-      expect(authService.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(authService.login(loginDto)).rejects.toThrow('Invalid email or password');
+      
+      expect(mockModel.findOne).toHaveBeenCalledWith({ email: loginDto.email });
     });
 
-    it('should throw invalid password error', async () => {
-      jest.spyOn(model, 'findOne').mockResolvedValueOnce(mockUser);
-      jest.spyOn(bcrypt as any, 'compare').mockResolvedValueOnce(false);
+    it('should throw UnauthorizedException if password is invalid', async () => {
+      // Mock user found but wrong password
+      mockModel.findOne.mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      expect(authService.login(loginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(authService.login(loginDto)).rejects.toThrow(UnauthorizedException);
+      await expect(authService.login(loginDto)).rejects.toThrow('Invalid email or password');
+      
+      expect(mockModel.findOne).toHaveBeenCalledWith({ email: loginDto.email });
+      expect(bcrypt.compare).toHaveBeenCalledWith(loginDto.password, mockUser.password);
     });
   });
 });
