@@ -156,7 +156,7 @@ describe('ProductService', () => {
 
       jest.spyOn(model, 'create').mockResolvedValue(newProduct as any);
 
-      const result = await productService.create(createProductDto, mockUser);
+      const result = await productService.create(createProductDto, mockUser as any);
 
       expect(model.create).toHaveBeenCalledWith({
         ...createProductDto,

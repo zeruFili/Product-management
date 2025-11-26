@@ -18,17 +18,17 @@ import type { Query as ExpressQuery } from 'express-serve-static-core';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('products')
-export class BookController {
+export class ProductController {
   constructor(private productService: ProductService) {} 
 
   @Get()
-  async getAllBooks(@Query() query: ExpressQuery): Promise<Product[]> {
+  async getAllProducts(@Query() query: ExpressQuery): Promise<Product[]> {
     return this.productService.findAll(query);
   }
 
   @Post()
   @UseGuards(AuthGuard())
-  async createBook(
+  async createProduct(
     @Body()
     Product: CreateProductDto,
       @Req() req,
@@ -37,7 +37,7 @@ export class BookController {
   }
 
   @Get(':id')
-  async getBook(
+  async getProduct(
     @Param('id')
     id: string,
   ): Promise<Product> {
@@ -45,7 +45,7 @@ export class BookController {
   }
 
   @Put(':id')
-  async updateBook(
+  async updateProduct(
     @Param('id')
     id: string,
     @Body()
@@ -55,7 +55,7 @@ export class BookController {
   }
 
   @Delete(':id')
-  async deleteBook(
+  async deleteProduct(
     @Param('id')
     id: string,
   ): Promise<Product> {
