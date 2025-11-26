@@ -31,6 +31,7 @@ describe('ProductService', () => {
     create: jest.fn(),
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
+    findByIdAndDelete: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -156,7 +157,7 @@ describe('ProductService', () => {
 
       jest.spyOn(model, 'create').mockResolvedValue(newProduct as any);
 
-      const result = await productService.create(createProductDto, mockUser);
+      const result = await productService.create(createProductDto, mockUser as any) ; // when i added as any it removed the error
 
       expect(model.create).toHaveBeenCalledWith({
         ...createProductDto,
@@ -235,3 +236,4 @@ describe('ProductService', () => {
   });
 });
 });
+

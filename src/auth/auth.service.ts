@@ -14,8 +14,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  
+
   async signUp(signUp): Promise<{ token: string }> {
     const { name, email, password } = signUp;
+    
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
