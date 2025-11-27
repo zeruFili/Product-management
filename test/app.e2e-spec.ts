@@ -53,8 +53,17 @@ describe('Book & Auth Controller (e2e)', () => {
         });
     });
 
-  
+    it('(GET) - Login user', async () => {
+      return request(app.getHttpServer())
+        .get('/auth/login')
+        .send({ email: user.email, password: user.password })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.token).toBeDefined();
+          jwtToken = res.body.token;
+        });
+    });
   });
 
-  
+ 
 });
