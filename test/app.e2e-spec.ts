@@ -73,7 +73,18 @@ describe('Product & Auth Controller (e2e)', () => {
   });
 
   describe('Product', () => {
- 
+    it('(POST) - Create new Product', async () => {
+      return request(app.getHttpServer())
+        .post('/products')
+        .set('Authorization', 'Bearer ' + jwtToken)
+        .send(newProduct)
+        .expect(201)
+        .then((res) => {
+          expect(res.body._id).toBeDefined();
+          expect(res.body.name).toEqual(newProduct.name);
+          productCreated = res.body;
+        });
+    });
 
     it('(GET) - Get all Books', async () => {
       return request(app.getHttpServer())
@@ -107,7 +118,16 @@ describe('Product & Auth Controller (e2e)', () => {
         });
     });
 
-   
+    it('(DELETE) - Delete a Product by ID', async () => {
+      return request(app.getHttpServer())
+        .delete(`/products/${productCreated?._id}`)
+        .set('Authorization', 'Bearer ' + jwtToken)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeDefined();
+          expect(res.body.deleted).toEqual(true);
+        });
+    });
   });
 });
 
