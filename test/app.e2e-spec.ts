@@ -72,6 +72,42 @@ describe('Product & Auth Controller (e2e)', () => {
     });
   });
 
+  describe('Product', () => {
+ 
 
+    it('(GET) - Get all Books', async () => {
+      return request(app.getHttpServer())
+        .get('/products')
+        .expect(200)
+        .then((res) => {
+          expect(res.body.length).toBe(1);
+        });
+    });
+
+    it('(GET) - Get a Product by ID', async () => {
+      return request(app.getHttpServer())
+        .get(`/products/${productCreated?._id}`)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeDefined();
+          expect(res.body._id).toEqual(productCreated._id);
+        });
+    });
+
+    it('(PUT) - Update a Product by ID', async () => {
+      const book = { name: 'Updated name' };
+      return request(app.getHttpServer())
+        .put(`/products/${productCreated?._id}`)     
+        .set('Authorization', 'Bearer ' + jwtToken)
+        .send(book)
+        .expect(200)
+        .then((res) => {
+          expect(res.body).toBeDefined();
+          expect(res.body.name).toEqual(book.name);
+        });
+    });
+
+   
+  });
 });
 
