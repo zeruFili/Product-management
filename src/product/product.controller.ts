@@ -58,7 +58,7 @@ export class ProductController {
   async deleteProduct(
     @Param('id')
     id: string,
-  ): Promise<Product> {
+  ): Promise<{deleted: boolean}> {
     return this.productService.deleteById(id);
   }
 }

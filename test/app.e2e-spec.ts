@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest'; 
 import { AppModule } from './../src/app.module';
 import mongoose from 'mongoose';
 import { Category } from '../src/product/schemas/product.schema';
 
-describe('Book & Auth Controller (e2e)', () => {
+describe('Product & Auth Controller (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
@@ -17,12 +17,16 @@ describe('Book & Auth Controller (e2e)', () => {
     await app.init();
   });
 
-  beforeAll(() => { Type '() => void' has no properties in common with type 'ConnectOptions'.
-    mongoose.connect(process.env.DB_URI as string, function () {
-      mongoose.connection.db.dropDatabase();
-    }); 'mongoose.connection.db' is possibly 'undefined'
-  });
 
+ beforeAll(async () => { // Made async and fixed connection
+    await mongoose.connect(process.env.DB_URI as string);
+    if (mongoose.connection.db) {
+        await mongoose.connection.db.dropDatabase();
+    } else {
+        console.error('Mongoose connection failed to establish a database reference.');
+        // Optionally throw an error or handle the failure
+    }
+  },60000);
   afterAll(() => mongoose.disconnect());
 
   const user = {
@@ -31,21 +35,24 @@ describe('Book & Auth Controller (e2e)', () => {
     password: '12345678',
   };
 
-  const newBook = {
-    title: 'New Book',
-    description: 'Book Description',
-    author: 'Author',
-    price: 100,
-    category: Category.TOYS,
+  const newProduct = {
+     
+    name: 'Test Product',
+    description: 'Product Description',
+    price: 99.99,
+    category: Category.ELECTRONICS,
+    stock: 50,
+
+    
   };
 
   let jwtToken: string = '';
-  let bookCreated;
+  let productCreated;
 
   describe('Auth', () => {
     it('(POST) - Register a new user', async () => {
-      return request(app.getHttpServer())
-        .post('/auth/signup')
+      return request(app.getHttpServer()) 
+      .post('/auth/signup')
         .send(user)
         .expect(201)
         .then((res) => {
@@ -53,11 +60,11 @@ describe('Book & Auth Controller (e2e)', () => {
         });
     });
 
-    it('(GET) - Login user', async () => {
+    it('(POST) - Login user', async () => {
       return request(app.getHttpServer())
-        .get('/auth/login')
+        .post('/auth/login')
         .send({ email: user.email, password: user.password })
-        .expect(200)
+        .expect(201)
         .then((res) => {
           expect(res.body.token).toBeDefined();
           jwtToken = res.body.token;
@@ -65,5 +72,6 @@ describe('Book & Auth Controller (e2e)', () => {
     });
   });
 
- 
+
 });
+

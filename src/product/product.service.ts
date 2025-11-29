@@ -74,13 +74,13 @@ export class ProductService {
     return updatedProduct;
   }
 
-  async deleteById(id: string): Promise<Product> {
+  async deleteById(id: string): Promise<{deleted: boolean}> {
     const deletedProduct = await this.productModel.findByIdAndDelete(id);
     
     if (!deletedProduct) {
       throw new NotFoundException('Product not found.');
     }
 
-    return deletedProduct;
+     return { deleted: true };
   }
 }
