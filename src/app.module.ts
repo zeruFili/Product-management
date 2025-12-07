@@ -6,8 +6,16 @@ import { AppService } from './app.service';
 import { ProductModule } from './product/product.module';
 import { AuthModule } from './auth/auth.module';
 
+import { ThrottlerModule } from '@nestjs/throttler';
+
 @Module({
   imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 5 * 1000,
+        limit: 3,
+      },
+    ]),
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
